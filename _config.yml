@@ -4,9 +4,27 @@ description: >-
 url     : https://glasnt.com 
 baseurl : /moniyum 
 title   : moniyum
+title_left         : "glasnt.com"
 
-# Build settings
+permalink: /:title
 markdown: kramdown
-theme: minima
+remote_theme: glasnt/myrtle@thinkspace
 plugins:
   - jekyll-feed
+
+
+navbar:
+  - slug : /
+    title: home
+  - slug : /blog/about/
+    title: about
+  - slug: /talks/
+    title: talks
+  - slug: /writing/
+    title: writing
+  - slug: /blog/
+    title: blog
+  - slug: /blog/now/
+    title: now
+  - slug: /blog/archive/
+    title: archive

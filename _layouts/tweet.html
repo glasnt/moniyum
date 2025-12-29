@@ -1,0 +1,22 @@
+---
+layout: post
+---
+
+<style>
+.image { width: 70%; }
+.data { display: inline-block;}
+.original { float: bottom}
+</style>
+
+<div class="tweet">
+    <span class="image"><img class="image" src="{{site.baseurl}}{{page.media}}" /></span>
+    
+    <span class="data">
+        {% if page.retweets %}Retweets: {{page.retweets}} {%endif%}
+        {% if page.favorites %}Favorites: {{page.favorites}} {%endif%}
+        {{page.content}}
+    </span>
+    <span class="original">
+        <a href="{{page.original_url}}">Original tweet</a>
+    </span>
+</div>

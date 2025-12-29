@@ -1,42 +1,55 @@
 # Import helper
 # Takes a twitter export (~2022 format, unsure if changed)
-# Gets relevent information and media, exports into a jekyll consumable format. 
+# Gets relevent information and media, exports into a jekyll consumable format.
 
 from pathlib import Path
 import json
 import sys
 from datetime import datetime
+from textwrap import dedent
+import shutil
+import re
 
-if len(sys.argv) == 1: 
+if len(sys.argv) == 1:
     raise ValueError("import.py PATH_TO_EXPORT_FOLDER")
 
-TWITTER_EXPORT = Path(sys.argv[1])
+TWITTER_EXPORT = Path(sys.argv[1].strip())
 
 print(f"Import from {TWITTER_EXPORT}")
 
 twitter_data_file = TWITTER_EXPORT / "data/tweets.js"
 
 json_data = []
+landing_media = Path("img")
 
-with open(twitter_data_file) as f: 
-    datafile = f.read().replace("window.YTD.tweets.part0 = ","")
+with open(twitter_data_file) as f:
+    datafile = f.read().replace("window.YTD.tweets.part0 = ", "")
 
     json_data = json.loads(datafile)
 
-for tweet in json_data: 
+for tweet in json_data[0:30]:
     t = tweet["tweet"]
-    
-    # Only export media tweets
 
-    if "media" not in t["entities"].keys(): 
+    # Only export media tweets
+    if "media" not in t["entities"].keys():
         continue
 
-    t_text = t["full_text"]
+    # Ignore any retweets (fuzzy)
+    if t["full_text"].startswith("RT @"):
+        continue
 
-    m = t["entities"]["media"][0] # from my data, only single media
+    url_pattern = re.compile(r'https?://\S+|www\.\S+')
+    
+    t_text = url_pattern.sub('', t["full_text"])
+
+    t_original_url = re.findall(r"https?://t.co/\S+", t["full_text"])
+
+
+    
+
+    m = t["entities"]["media"][0]  # from my data, only single media items exist. 
     ext = m["media_url"].split("/")[-1]
-    _id = m["id"]
-    t_media = _id + "-" + ext
+    t_media = t["id"] + "-" + ext
     t_created_at = t["created_at"]
 
     format_string = "%a %b %d %H:%M:%S %z %Y"
@@ -47,5 +60,26 @@ for tweet in json_data:
     print(t_date)
     print(t_text)
     print(t["favorite_count"], t["retweet_count"])
-    print(f"\tdata/tweets_media/{t_media}")
+    media_file = f"data/tweets_media/{t_media}"
     print("")
+
+    post_name = f"{t_date.strftime('%Y-%m-%d')}-{t['id']}.md"
+
+    shutil.copy(TWITTER_EXPORT / media_file, landing_media / t_media)
+
+    post = dedent(f"""\
+        ---
+        layout: tweet
+        title: {t['id']}
+        date: {t_date}
+        media: /img/{t_media}
+        original_url: {t_original_url}
+        retweets: {t['retweet_count']}
+        favorites: {t["favorite_count"]}
+        ---
+        """
+            ).strip()
+    post += f"\n\n{t_text}"
+    
+    with open(f"_posts/{post_name}", "w") as f:
+        f.write(post)
