@@ -73,7 +73,6 @@ for tweet in json_data:
         ---
         layout: tweet
         title: {t['id']}
-        date: {t_date}
         media: /img/{t_media}
         original_url: {t_original_url}
         retweets: {t['retweet_count']}

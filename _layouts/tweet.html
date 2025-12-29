@@ -34,11 +34,12 @@ layout: default
     </div>
 
     <div class="column">
+        @moniyum - {{ page.date | date: "%-d %b %Y" }} <br><br>
+        {{page.content}}
+        <br>
         {% if page.retweets %}{{page.retweets}} 🔀 {%endif%}
         {% if page.favorites %}{{page.favorites}} 💙 {%endif%}
-        {% if page.retweets or page.favorites %}<br><br> {%endif%}
-
-        {{page.content}}
+        {% if page.retweets or page.favorites %} --  {%endif%}
         
         {% if page.original_url %}
         <span class="original">
