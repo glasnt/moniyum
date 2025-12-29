@@ -1,22 +1,48 @@
 ---
-layout: post
+layout: default
 ---
-
 <style>
-.image { width: 70%; }
-.data { display: inline-block;}
-.original { float: bottom}
+.image { display: inline-block;  width: 100%; 
+        aspect-ratio: 1;
+        object-fit: cover;
+        object-position: top;}
+.image > img { border-radius: 15px; }
+.original { float: bottom }
+
+.tweet {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  /* Adds space between columns */
+  gap: 20px;
+}
+.column {
+  /* Add styling like padding or background as needed */
+  padding: 1rem;
+}
 </style>
 
-<div class="tweet">
-    <span class="image"><img class="image" src="{{site.baseurl}}{{page.media}}" /></span>
-    
-    <span class="data">
-        {% if page.retweets %}Retweets: {{page.retweets}} {%endif%}
-        {% if page.favorites %}Favorites: {{page.favorites}} {%endif%}
+<div class="container">
+    <a href="#" onclick="window.history.back()"> &lt; Back</a>
+
+    <div class="tweet">
+    <div class="column">
+
+        <div class="image">
+            <img src="{{site.baseurl}}{{page.media}}" />
+        </div>
+
+    </div>
+
+    <div class="column">
+        {% if page.retweets %}{{page.retweets}} 🔀 {%endif%}
+        {% if page.favorites %}{{page.favorites}} 💙 {%endif%}
+        {% if page.retweets or page.favorites %}<br><br> {%endif%}
+
         {{page.content}}
+        
+        {% if page.original_url %}
+        <span class="original">
+        <a href="{{page.original_url}}">Original tweet</a> {%endif%}
     </span>
-    <span class="original">
-        <a href="{{page.original_url}}">Original tweet</a>
-    </span>
-</div>
+    </div>
+    </div></div>

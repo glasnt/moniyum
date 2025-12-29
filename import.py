@@ -27,27 +27,28 @@ with open(twitter_data_file) as f:
 
     json_data = json.loads(datafile)
 
-for tweet in json_data[0:30]:
+for tweet in json_data:
     t = tweet["tweet"]
 
     # Only export media tweets
     if "media" not in t["entities"].keys():
         continue
 
+    # Ignore video (not in my data apart from meme posts)
+    if "/video/" in t["entities"]["media"][0]["expanded_url"]: 
+        continue
+
     # Ignore any retweets (fuzzy)
     if t["full_text"].startswith("RT @"):
         continue
 
-    url_pattern = re.compile(r'https?://\S+|www\.\S+')
-    
-    t_text = url_pattern.sub('', t["full_text"])
+    url_pattern = re.compile(r"https?://\S+|www\.\S+")
 
-    t_original_url = re.findall(r"https?://t.co/\S+", t["full_text"])
+    t_text = url_pattern.sub("", t["full_text"])
 
+    t_original_url = re.findall(r"https?://t.co/\S+", t["full_text"])[0]
 
-    
-
-    m = t["entities"]["media"][0]  # from my data, only single media items exist. 
+    m = t["entities"]["media"][0]  # from my data, only single media items exist.
     ext = m["media_url"].split("/")[-1]
     t_media = t["id"] + "-" + ext
     t_created_at = t["created_at"]
@@ -67,7 +68,8 @@ for tweet in json_data[0:30]:
 
     shutil.copy(TWITTER_EXPORT / media_file, landing_media / t_media)
 
-    post = dedent(f"""\
+    post = dedent(
+        f"""\
         ---
         layout: tweet
         title: {t['id']}
@@ -78,8 +80,8 @@ for tweet in json_data[0:30]:
         favorites: {t["favorite_count"]}
         ---
         """
-            ).strip()
+    ).strip()
     post += f"\n\n{t_text}"
-    
+
     with open(f"_posts/{post_name}", "w") as f:
         f.write(post)
